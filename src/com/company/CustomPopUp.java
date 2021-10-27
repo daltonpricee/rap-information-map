@@ -1,13 +1,10 @@
 package com.company;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class CustomPopUp {
     private JLabel picLabel;
@@ -39,10 +36,7 @@ public class CustomPopUp {
     private int art2ML;
     private int art3ML;
     private String picURL;
-
     private ArrayList<State> stateList = new ArrayList<>();
-
-
     private JFrame frame3;
     public JPanel mainPanel;
     private JLabel artistsLabel;
@@ -76,23 +70,15 @@ public class CustomPopUp {
         });
     }
 
-
-    public JPanel showStateInfo(int mouseX, int mouseY) throws SQLException {
+    /**
+     * Finds correct state from arraylist loop and displays info in pop up.
+     * @param mouseX the x value of the user click point.
+     * @param mouseY the x value of the user click point.
+     * @throws SQLException
+     */
+    public void showStateInfo(int mouseX, int mouseY) throws SQLException {
         //crates the array liust nneeded
-        System.out.println(mouseX + ", " + mouseY);
-        create();
-        for (State s : stateList) {
-            if (s.getMaxLeft() >= mouseX && s.getMaxRight() >= mouseX && s.getMaxLow() >= mouseY && s.getMaxHigh() <= mouseY) {
-                stateName = s.getStateName();
-                topartist1 = s.getArtist1();
-                topartist2 = s.getArtist2();
-                topartist3 = s.getArtist3();
-
-            }
-        }
-        //Changes the label text to the correct info
-        topLabel.setText(stateName.replace("", " ").trim().toUpperCase(Locale.ROOT) + "    I N F O");
-        listLabel.setText("<html> 1: " + topartist1 + "<br> 2: " + topartist2 + "<br> 3: " + topartist3 + "</html>");
+        createArrayListFromDB();
 
         //This displays the popup window the the correct info
         UIManager.put("OptionPane.minimumSize", new Dimension(450, 270));
@@ -101,13 +87,35 @@ public class CustomPopUp {
                 JOptionPane.DEFAULT_OPTION,
                 null,
                 new Object[]{}, null);
-
         dialog = optionPane.createDialog("Selected State Overview");
+
+        //Loop to go thru all the state info and find correct state based on user click.
+        for (State s : stateList) {
+            if (s.getMaxLeft() <= mouseX && s.getMaxRight() >= mouseX && s.getMaxLow() >= mouseY
+                && s.getMaxHigh() <= mouseY) {
+
+                //If a state fits the criteria then set the vars to that states info
+                stateName = s.getStateName();
+                topartist1 = s.getArtist1();
+                topartist2 = s.getArtist2();
+                topartist3 = s.getArtist3();
+
+                //Changes the label text to the correct info
+                topLabel.setText(stateName.replace("", " ").trim()
+                        + "    I N F O");
+                listLabel.setText("<html> 1: " + topartist1 + "<br> 2: "
+                        + topartist2 + "<br> 3: " + topartist3 + "</html>");
+            }
+        }
         dialog.setVisible(true);
-        return mainPanel;
     }
 
-    public ArrayList<State> create() throws SQLException {
+    /**
+     * Iterate through DB table and create objects based on row info.
+     * @return arraylist of state objects, to be used for parsing.
+     * @throws SQLException
+     */
+    public ArrayList<State> createArrayListFromDB() throws SQLException {
 
         query = "SELECT * FROM state_info ";
         myStmt2 = myConn.createStatement();
@@ -132,19 +140,7 @@ public class CustomPopUp {
         return stateList;
     }
 
-        /**
-         public void setLabels(String stateName, String artist1, String artist2, String artist3) {
-         topLabel.setText(stateName + " INFO");
-         //then set text label to the info
-         listLabel.setText("<html>1: "
-         + topartist1
-         + "<br/>2: "
-         + topartist2
-         + "<br/>3: "
-         + topartist3
-         + "</html>");
-         }
-         */
+
     }
 
 
